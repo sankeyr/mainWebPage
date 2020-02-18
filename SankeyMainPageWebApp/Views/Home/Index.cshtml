@@ -1,0 +1,337 @@
+﻿@{
+  ViewBag.Title = "GoAvsGo";
+}
+
+<script>
+  $(document).ready(function () {
+    $('.bibleVerseBr').hide();
+    $.ajax({
+      url: 'https://dailyverses.net/get/verse?language=niv&isdirect=1&url=' + window.location.hostname,
+      dataType: 'JSONP',
+      success: function (json) {
+        $(".dailyVersesWrapper").prepend(json.html);
+      }
+    });
+
+    $('#button').click(function () {
+      $('.hockeyBr, .bibleVerseBr').slideToggle();
+      if ($('#button')[0].src.indexOf("Avs") >= 0)
+        $('#button').attr("src", "../Images/cross.JPG");
+      else
+        $('#button').attr("src", "../Images/AvsLogo.jpg");
+    });
+
+    function makeTimer(gameTime) {
+      var endTime = new Date(gameTime);
+      endTime = (Date.parse(endTime) / 1000);
+
+      var now = new Date();
+      now = (Date.parse(now) / 1000);
+
+      var timeLeft = endTime - now;
+
+      var days = Math.floor(timeLeft / 86400);
+      var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+      var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600)) / 60);
+      var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+
+      if (hours < "10") { hours = "0" + hours; }
+      if (minutes < "10") { minutes = "0" + minutes; }
+      if (seconds < "10") { seconds = "0" + seconds; }
+
+      $("#days").html(days + "<span>Days</span>");
+      $("#hours").html(hours + "<span>Hours</span>");
+      $("#minutes").html(minutes + "<span>Minutes</span>");
+      $("#seconds").html(seconds + "<span>Seconds</span>");
+
+    }
+
+    $.ajax({
+      cache: false,
+      url: '/Home/GetAvsScheduleInfo',
+      type: 'GET',
+      contentType: "application/json;charset=utf-8;",
+      dataType: "json",
+      beforeSend: function () {
+      },
+      success: function (data) {
+        var gameInfo = data;
+        $('#awayTeamLogo').attr("src", gameInfo.AwayLogoUrl);
+        $('#homeTeamLogo').attr("src", gameInfo.HomeLogoUrl);
+        debugger;
+        var now = new Date();
+        var gameTime = new Date(gameInfo.GameTimeStart);
+        if (now > gameTime) {
+          $('#scoreBoard').show();
+          $("#awayTeamScore").text(gameInfo.AwayScore);
+          $("#homeTeamScore").text(gameInfo.HomeScore);
+          $("#homeSog").text("SOG-" + gameInfo.HomeSog);
+          $("#awaySog").text("SOG-" + gameInfo.AwaySog);
+        }
+        else {
+          $('#puckDrop').show();
+          setInterval(function () { makeTimer(gameInfo.GameTimeStart); }, 1000);
+        }      
+      },
+      error: function (xhr, textStatus, errorThrow) {
+        debugger;
+      }
+    });
+
+
+  });
+
+</script>
+
+<img src="~/Images/cross.JPG" class="btnToggle" id="button" />
+<div class="bibleVerseBr" hidden>
+  <div class="bibleVerse">
+    <h1 class="dailyVersesWrapper"></h1>
+  </div>
+</div>
+
+<div class="hockeyBr">
+  <div id="puckDrop" hidden>
+    <h1 class="puckDrops">Puck Drops In: </h1>
+    <div id="timer" class="timer">
+      <div id="days" class="timer"></div>
+      <div id="hours" class="timer"></div>
+      <div id="minutes" class="timer"></div>
+      <div id="seconds" class="timer"></div>
+    </div>
+  </div>
+  <div id="scoreBoard" hidden style="padding-right:50px;">
+    <div class="scoreBoardNumber">
+      <h1 style="font-size:65px;" id="awayTeamScore"></h1>
+      <p id="awaySog"></p>
+    </div>
+    <div class="scoreBoardNumber">
+     <h1 style="font-size:65px;" id="homeTeamScore"></h1>
+      <p id="homeSog"></p>
+    </div>
+  </div>
+  <div>
+    <img id="awayTeamLogo" height="100" width="100" /> <b>VS</b> <img id="homeTeamLogo" height="100" width="100" />
+  </div>
+  <div style="text-align: center;padding-right: 140px;">
+    <div style="display:inline-block; color: black">
+      <p>Pts:</p>
+      <p>Division Rank:</p>
+      <p>Conference Rank:</p>
+      <p>League Rank:</p>
+      <p>Power Play Goals:</p>
+      <p>Faceoff Wins:</p>
+      <p>Power Play Goals Against:</p>
+      <p>Shots Per Game:</p>
+      <p>Wins Scored First:</p>
+      <p>Wins Lead First Period:</p>
+      <p>Wins Lead Second Period:</p>
+    </div>
+    @*AWAY*@
+  <div class="staticStats">
+    <p>@Model.AwayTeamWins-@Model.AwayTeamLoses-@Model.AwayTeamOt</p>
+    @*Points*@
+    @if (Model.HomeTeamPoints > Model.AwayTeamPoints)
+    {
+      <p class="loserRed">@Model.AwayTeamPoints</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayTeamPoints</p>
+    }
+    @*DivisionRank*@
+    @if (Model.HomeDivisionRank < Model.AwayDivisionRank)
+    {
+      <p class="loserRed">@Model.AwayDivisionRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayDivisionRank</p>
+    }
+    @*ConferenceRank*@
+    @if (Model.HomeConferenceRank < Model.AwayConferenceRank)
+    {
+      <p class="loserRed">@Model.AwayConferenceRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayConferenceRank</p>
+    }
+    @*LeagueRank*@
+    @if (Model.HomeLeagueRank < Model.AwayLeagueRank)
+    {
+      <p class="loserRed">@Model.AwayLeagueRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayLeagueRank</p>
+    }
+    @*PowerPlayGoals*@
+    @if (Model.HomePowerPlayGoals < Model.AwayPowerPlayGoals)
+    {
+      <p class="loserRed">@Model.AwayPowerPlayGoalsStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayPowerPlayGoalsStr</p>
+    }
+    @*faceOffsWon*@
+    @if (Model.HomeFaceOffsWon < Model.AwayFaceOffsWon)
+    {
+      <p class="loserRed">@Model.AwayFaceOffsWonStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayFaceOffsWonStr</p>
+    }
+    @*powerPlayGoalsAgainst*@
+    @if (Model.HomePowerPlayGoalsAgainst < Model.AwayPowerPlayGoalsAgainst)
+    {
+      <p class="loserRed">@Model.AwayPowerPlayGoalsAgainstStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayPowerPlayGoalsAgainstStr</p>
+    }
+    @*shotsPerGame*@
+    @if (Model.HomeShotsPerGame < Model.AwayShotsPerGame)
+    {
+      <p class="loserRed">@Model.AwayShotsPerGameStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayShotsPerGameStr</p>
+    }
+    @*winScoreFirst*@
+    @if (Model.HomeWinScoreFirst < Model.AwayWinScoreFirst)
+    {
+      <p class="loserRed">@Model.AwayWinScoreFirstStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayWinScoreFirstStr</p>
+    }
+    @*winLeadFirstPer*@
+    @if (Model.HomeWinLeadFirstPer < Model.AwayWinLeadFirstPer)
+    {
+      <p class="loserRed">@Model.AwayWinLeadFirstPerStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayWinLeadFirstPerStr</p>
+    }
+    @*winLeadSecondPer*@
+    @if (Model.HomeWinLeadSecondPer < Model.AwayWinLeadSecondPer)
+    {
+      <p class="loserRed">@Model.AwayWinLeadSecondPerStr</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.AwayWinLeadSecondPerStr</p>
+    }
+  </div>
+    @*HOME*@
+  <div class="staticStats">
+    <p>@Model.HomeTeamWins-@Model.HomeTeamLoses-@Model.HomeTeamOt</p>
+    @*Points*@
+    @if (Model.HomeTeamPoints > Model.AwayTeamPoints)
+    {
+      <p class="winnerGreen">@Model.HomeTeamPoints</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeTeamPoints</p>
+    }
+    @*DivisionRank*@
+    @if (Model.HomeDivisionRank > Model.AwayDivisionRank)
+    {
+      <p class="loserRed">@Model.HomeDivisionRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.HomeDivisionRank</p>
+    }
+    @*ConferenceRank*@
+    @if (Model.HomeConferenceRank > Model.AwayConferenceRank)
+    {
+      <p class="loserRed">@Model.HomeConferenceRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.HomeConferenceRank</p>
+    }
+    @*LeagueRank*@
+    @if (Model.HomeLeagueRank > Model.AwayLeagueRank)
+    {
+      <p class="loserRed">@Model.HomeLeagueRank</p>
+    }
+    else
+    {
+      <p class="winnerGreen">@Model.HomeLeagueRank</p>
+    }
+    @*PowerPlayGoals*@
+    @if (Model.HomePowerPlayGoals < Model.AwayPowerPlayGoals)
+    {
+      <p class="winnerGreen">@Model.HomePowerPlayGoalsStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomePowerPlayGoalsStr</p>
+    }
+    @*faceOffsWon*@
+    @if (Model.HomeFaceOffsWon < Model.AwayFaceOffsWon)
+    {
+      <p class="winnerGreen">@Model.HomeFaceOffsWonStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeFaceOffsWonStr</p>
+    }
+    @*powerPlayGoalsAgainst*@
+    @if (Model.HomePowerPlayGoalsAgainst < Model.AwayPowerPlayGoalsAgainst)
+    {
+      <p class="winnerGreen">@Model.HomePowerPlayGoalsAgainstStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomePowerPlayGoalsAgainstStr</p>
+    }
+    @*shotsPerGame*@
+    @if (Model.HomeShotsPerGame < Model.AwayShotsPerGame)
+    {
+      <p class="winnerGreen">@Model.HomeShotsPerGameStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeShotsPerGameStr</p>
+    }
+    @*winScoreFirst*@
+    @if (Model.HomeWinScoreFirst < Model.AwayWinScoreFirst)
+    {
+      <p class="winnerGreen">@Model.HomeWinScoreFirstStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeWinScoreFirstStr</p>
+    }
+    @*winLeadFirstPer*@
+    @if (Model.HomeWinLeadFirstPer < Model.AwayWinLeadFirstPer)
+    {
+      <p class="winnerGreen">@Model.HomeWinLeadFirstPerStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeWinLeadFirstPerStr</p>
+    }
+    @*winLeadSecondPer*@
+    @if (Model.HomeWinLeadSecondPer < Model.AwayWinLeadSecondPer)
+    {
+      <p class="winnerGreen">@Model.HomeWinLeadSecondPerStr</p>
+    }
+    else
+    {
+      <p class="loserRed">@Model.HomeWinLeadSecondPerStr</p>
+    }
+  </div>
+  </div>
+</div>
