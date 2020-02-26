@@ -7,7 +7,7 @@ namespace SankeyMainPageWebApp.Models
 {
     public class AvsGameInfo
     {
-        public string GameTimeStart { get; set; }
+        public DateTime GameTimeStart { get; set; }
 
         public string AwayLogoUrl { get; set; }
 

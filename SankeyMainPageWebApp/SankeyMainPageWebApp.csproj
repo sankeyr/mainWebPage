@@ -156,6 +156,7 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Content\NhlLogos.json" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\SankeyMainPage - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

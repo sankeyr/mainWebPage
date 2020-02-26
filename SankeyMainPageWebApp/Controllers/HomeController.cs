@@ -179,7 +179,7 @@ namespace SankeyMainPageWebApp.Controllers
         public string GetAvsScheduleInfo()
         {
             string AvsInfoUrl = "https://statsapi.web.nhl.com/api/v1/teams/21?expand=team.schedule.next";
-            string nextGameDate = string.Empty;
+            DateTime nextGameDate;
             AvsGameInfo avsGameInfo = new AvsGameInfo();
             var homeTeamLogoUrl = string.Empty;
             var awayTeamLogoUrl = string.Empty;
@@ -216,7 +216,9 @@ namespace SankeyMainPageWebApp.Controllers
 
                 var data = JsonConvert.DeserializeObject<AvsScheduleInfo.RootObject>(strOutputJson);
                 //Mon Feb 17 2020 20:56:12 GMT-0700 (Mountain Standard Time)
-                nextGameDate = data.teams[0].nextGameSchedule.dates[0].games[0].gameDate.ToLocalTime().ToString("ddd MMM dd yyy HH:mm:ss 'GMT-0700'");
+
+                nextGameDate = data.teams[0].nextGameSchedule.dates[0].games[0].gameDate.ToUniversalTime();
+                //nextGameDate = data.teams[0].nextGameSchedule.dates[0].games[0].gameDate.ToString();//.ToLocalTime().ToString("ddd MMM dd yyy HH:mm:ss 'GMT-0700'");
                 homeTeamId = data.teams[0].nextGameSchedule.dates[0].games[0].teams.home.team.id;
                 awayTeamId = data.teams[0].nextGameSchedule.dates[0].games[0].teams.away.team.id;
                 homeTeamScore = data.teams[0].nextGameSchedule.dates[0].games[0].teams.home.score.ToString();
